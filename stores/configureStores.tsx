@@ -23,7 +23,7 @@ const persistConfig = {
 
 // combine reducers
 const reducers = combineReducers({
-    allReducers,
+    ...allReducers,
     [ConfigApi.reducerPath]: ConfigApi.reducer,
 });
 

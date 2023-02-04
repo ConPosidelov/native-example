@@ -1,6 +1,6 @@
 import { combineReducers } from '@reduxjs/toolkit';
-import counterSlice from "./counter";
+import todos from "./tasks";
 
 export default {
-    counterSlice,
+    todos,
 };
