@@ -3,9 +3,7 @@ import axios from 'axios'
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../stores/configureStores';
 import {
-    Input,
     IconButton,
-    Checkbox,
     Text,
     Box,
     VStack,
@@ -16,44 +14,79 @@ import {
     useToast,
     NativeBaseProvider,
     Flex,
+    Select,
+    CheckIcon,
 } from 'native-base'
 import { Feather, Entypo } from '@expo/vector-icons'
-import { taskAdded, taskToggled, taskRemove } from '../reducers/tasks'
+import { sourceLangChange, targetLangChange } from '../reducers/settings'
+
 
 
 const Settings = () => {
-    const [inputValue, setInputValue] = useState('')
-    const [translation, setTranslation] = useState('')
-
-    const toast = useToast()
-    const todoList = useSelector((state: RootState) => state.todos.entities);
-    //console.log('todoList', todoList)
+    const langs = useSelector((state: RootState) => state.settings.langs);
+    const sourceLang = useSelector((state: RootState) => state.settings.sourceLang);
+    const targetLang = useSelector((state: RootState) => state.settings.targetLang);
     const dispatch = useDispatch();
 
-    useEffect(() => {
-        //translate({q: 'привет'}).then(r => setTranslation(r))
-    }, []);
-
-
-
-    const handleDelete = (id) => {
-
+    const changeSourceLang = (v) => {
+        dispatch(sourceLangChange(v));
     }
-
-    const handleStatusChange = (id) => {
-
+    const changeTargetLang = (v) => {
+        dispatch(targetLangChange(v));
     }
-
     return (
         <Flex p={3} alignItems="center">
-            <VStack space={2}>
-                <Box height={100} maxW="300" w="100%">
-
-                </Box>
-
-                <Box maxW="300" w="100%">
-
-                </Box>
+            <VStack space={2} w="300">
+                <HStack w="100%" justifyContent="space-between">
+                    <Box justifyContent="center">
+                        <Text>{'Source Lang'}</Text>
+                    </Box>
+                    <Box justifyContent="center">
+                        <Select
+                            selectedValue={sourceLang}
+                            width="100px"
+                            borderColor="blue.700"
+                            color="blue.700"
+                            textTransform="uppercase"
+                            _selectedItem={{
+                                bg: "teal.600",
+                                endIcon: <CheckIcon size="1" />
+                            }}
+                            _actionSheetBody={{
+                                p: "10"
+                            }}
+                            mt={1}
+                            onValueChange={itemValue => changeSourceLang(itemValue)}
+                        >
+                            {langs.map(({label, value}, i) => <Select.Item key={label+i} label={label} value={value} />)}
+                        </Select>
+                    </Box>
+                </HStack>
+                <HStack w="100%" justifyContent="space-between">
+                    <Box justifyContent="center">
+                        <Text>{'Target Lang'}</Text>
+                    </Box>
+                    <Box justifyContent="center">
+                        <Select
+                            selectedValue={targetLang}
+                            width="100px"
+                            borderColor="blue.700"
+                            color="blue.700"
+                            textTransform="uppercase"
+                            _selectedItem={{
+                                bg: "teal.600",
+                                endIcon: <CheckIcon size="1" />
+                            }}
+                            _actionSheetBody={{
+                                p: "10"
+                            }}
+                            mt={1}
+                            onValueChange={itemValue => changeTargetLang(itemValue)}
+                        >
+                            {langs.map(({label, value}, i) => <Select.Item key={label+i} label={label} value={value} />)}
+                        </Select>
+                    </Box>
+                </HStack>
             </VStack>
         </Flex>
     )

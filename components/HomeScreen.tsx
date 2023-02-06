@@ -6,6 +6,7 @@ import {
     Input,
     IconButton,
     Checkbox,
+    Divider,
     Text,
     Box,
     VStack,
@@ -17,7 +18,7 @@ import {
     NativeBaseProvider,
     Flex,
 } from 'native-base'
-import { Feather, Entypo } from '@expo/vector-icons'
+import { Feather, Entypo, MaterialIcons } from '@expo/vector-icons'
 import { taskAdded, taskToggled, taskRemove } from '../reducers/tasks'
 
 
@@ -45,24 +46,16 @@ const translate = async ({ q, sourceLang = 'en', targetLang = 'ru' }) => {
 }
 
 
-const HomeScreen = () => {
+const HomeScreen = ({ navigation: { navigate } }) => {
     const [inputValue, setInputValue] = useState('')
     const [translation, setTranslation] = useState('')
-
     const toast = useToast()
-    const todoList = useSelector((state: RootState) => state.todos.entities);
-    //console.log('todoList', todoList)
     const dispatch = useDispatch();
-
-    useEffect(() => {
-        console.log('=======================translation2==================================', translation);
-    }, [translation]);
-    useEffect(() => {
-        //translate({q: 'привет'}).then(r => setTranslation(r))
-    }, []);
+    const todoList = useSelector((state: RootState) => state.todos.entities);
+    const sourceLang = useSelector((state: RootState) => state.settings.sourceLang);
+    const targetLang = useSelector((state: RootState) => state.settings.targetLang);
 
     const addItem = async (title) => {
-        console.log('addItem1=====')
         if(title === '') {
             toast.show({
                 title: 'Please Enter Text',
@@ -71,9 +64,7 @@ const HomeScreen = () => {
             return
         } else {
             let temp = title.trim();
-            //dispatch(taskAdded({ id: Date.now(), title: temp, isCompleted: false }));
-            //console.log('addItem2=====')
-            translate({ q: temp, sourceLang: 'ru', targetLang: 'en' }).then(r => {
+               translate({ q: temp, sourceLang, targetLang }).then(r => {
                 setTranslation(r)
                 dispatch(taskAdded({ id: Date.now(), origin: temp, translation: r, isCompleted: false }));
             })
@@ -89,9 +80,27 @@ const HomeScreen = () => {
     }
 
     return (
-        <Flex p={3} alignItems="center">
-            <VStack space={2}>
-                <Box height={100} maxW="300" w="100%">
+        <Flex p={3} alignItems="center" pt="7">
+            <VStack space={2} w="300">
+                <HStack w="100%" space={1} justifyContent="space-between">
+                    <Box justifyContent="center">
+                        <Text textTransform={'uppercase'}>{`${sourceLang} --> ${targetLang}`}</Text>
+                    </Box>
+                    <IconButton
+                        size="sm"
+                        variant="outline"
+
+                        _icon={{
+                            as: MaterialIcons,
+                            name: "settings"
+                        }}
+                        onPress={() => {
+                            navigate('Settings')
+                        }}
+                    />
+                </HStack>
+                <Divider thickness="2" mb="10" orientation="horizontal" />
+                <Box height={50} maxW="300" w="100%">
                     <HStack space={2} w="100%" >
                         <Input
                             flex={1}
