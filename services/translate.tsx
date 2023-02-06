@@ -7,7 +7,7 @@ const translateApi = async ({ q, sourceLang = 'en', targetLang = 'ru' }) => {
         url: 'https://translated-mymemory---translation-memory.p.rapidapi.com/get',
         params: { langpair: `${sourceLang}|${targetLang}`, q, mt: '1', onlyprivate: '0', de: 'a@b.c' },
         headers: {
-            'X-RapidAPI-Key': '4d631c1aa7msh898ea8edaa21832p1f1a9ejsn7932d54855c3',
+            'X-RapidAPI-Key': '',
             'X-RapidAPI-Host': 'translated-mymemory---translation-memory.p.rapidapi.com'
         }
     };
