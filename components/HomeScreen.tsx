@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../stores/configureStores';
 import {
@@ -14,19 +15,54 @@ import {
     Center,
     useToast,
     NativeBaseProvider,
+    Flex,
 } from 'native-base'
 import { Feather, Entypo } from '@expo/vector-icons'
 import { taskAdded, taskToggled, taskRemove } from '../reducers/tasks'
 
 
+
+const translate = async ({ q, sourceLang = 'en', targetLang = 'ru' }) => {
+    const options = {
+        method: 'GET',
+        url: 'https://translated-mymemory---translation-memory.p.rapidapi.com/get',
+        params: { langpair: `${sourceLang}|${targetLang}`, q, mt: '1', onlyprivate: '0', de: 'a@b.c' },
+        headers: {
+            'X-RapidAPI-Key': '4d631c1aa7msh898ea8edaa21832p1f1a9ejsn7932d54855c3',
+            'X-RapidAPI-Host': 'translated-mymemory---translation-memory.p.rapidapi.com'
+        }
+    };
+    try {
+        const res = await axios.request(options)
+        if(res) {
+            return res.data.matches[0].translation
+        } else {
+            return null
+        }
+    } catch {
+        console.error(error)
+    }
+}
+
+
 const HomeScreen = () => {
     const [inputValue, setInputValue] = useState('')
+    const [translation, setTranslation] = useState('')
+
     const toast = useToast()
     const todoList = useSelector((state: RootState) => state.todos.entities);
     //console.log('todoList', todoList)
     const dispatch = useDispatch();
 
-    const addItem = (title) => {
+    useEffect(() => {
+        console.log('=======================translation2==================================', translation);
+    }, [translation]);
+    useEffect(() => {
+        //translate({q: 'привет'}).then(r => setTranslation(r))
+    }, []);
+
+    const addItem = async (title) => {
+        console.log('addItem1=====')
         if(title === '') {
             toast.show({
                 title: 'Please Enter Text',
@@ -35,7 +71,12 @@ const HomeScreen = () => {
             return
         } else {
             let temp = title.trim();
-            dispatch(taskAdded({ id: Date.now(), title: temp, isCompleted: false }));
+            //dispatch(taskAdded({ id: Date.now(), title: temp, isCompleted: false }));
+            //console.log('addItem2=====')
+            translate({ q: temp, sourceLang: 'ru', targetLang: 'en' }).then(r => {
+                setTranslation(r)
+                dispatch(taskAdded({ id: Date.now(), origin: temp, translation: r, isCompleted: false }));
+            })
         }
     }
 
@@ -48,44 +89,44 @@ const HomeScreen = () => {
     }
 
     return (
-        <Center flex={1} px="3">
-            <Center w="100%">
+        <Flex p={3} alignItems="center">
+            <VStack space={2}>
+                <Box height={100} maxW="300" w="100%">
+                    <HStack space={2} w="100%" >
+                        <Input
+                            flex={1}
+                            onChangeText={(v) => setInputValue(v)}
+                            value={inputValue}
+                            placeholder="Add Task"
+                        />
+                        <IconButton
+                            borderRadius="sm"
+                            variant="solid"
+                            icon={
+                                <Icon as={Feather} name="plus" size="sm" color="warmGray.50" />
+                            }
+                            onPress={() => {
+                                addItem(inputValue)
+                                setInputValue('')
+                            }}
+                        />
+                    </HStack>
+                </Box>
+
                 <Box maxW="300" w="100%">
-                    <Heading mb="2" size="md">
-                        Wednesday
-                    </Heading>
                     <VStack space={4}>
-                        <HStack space={2}>
-                            <Input
-                                flex={1}
-                                onChangeText={(v) => setInputValue(v)}
-                                value={inputValue}
-                                placeholder="Add Task"
-                            />
-                            <IconButton
-                                borderRadius="sm"
-                                variant="solid"
-                                icon={
-                                    <Icon as={Feather} name="plus" size="sm" color="warmGray.50" />
-                                }
-                                onPress={() => {
-                                    addItem(inputValue)
-                                    setInputValue('')
-                                }}
-                            />
-                        </HStack>
                         <VStack space={2}>
                             {todoList.map((item, itemI) => (
                                 <HStack
                                     w="100%"
                                     justifyContent="space-between"
                                     alignItems="center"
-                                    key={item.title + itemI.toString()}
+                                    key={item.translation + itemI.toString()}
                                 >
                                     <Checkbox
                                         isChecked={item.isCompleted}
                                         onChange={() => handleStatusChange(item.id)}
-                                        value={item.title}
+                                        value={item.translation}
                                     ></Checkbox>
                                     <Text
                                         width="100%"
@@ -101,7 +142,7 @@ const HomeScreen = () => {
                                         }}
                                         onPress={() => handleStatusChange(item.id)}
                                     >
-                                        {item.title}
+                                        {`${item.translation} (${item.origin})`}
                                     </Text>
                                     <IconButton
                                         size="sm"
@@ -121,8 +162,8 @@ const HomeScreen = () => {
                         </VStack>
                     </VStack>
                 </Box>
-            </Center>
-        </Center>
+            </VStack>
+        </Flex>
     )
 }
 

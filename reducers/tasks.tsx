@@ -16,24 +16,11 @@ const initialState: InitialState = {
     entities: [
         {
             id: '1',
-            title: 'Code',
+            origin: 'Код',
+            translation: 'Code',
             isCompleted: true,
         },
-        {
-            id: '2',
-            title: 'Meeting with team at 7',
-            isCompleted: false,
-        },
-        {
-            id: '3',
-            title: 'Check Emails',
-            isCompleted: false,
-        },
-        {
-            id: '4',
-            title: 'Write an article',
-            isCompleted: false,
-        },
+
     ],
 };
 

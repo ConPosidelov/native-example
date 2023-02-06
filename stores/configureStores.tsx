@@ -1,8 +1,7 @@
-import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import { configureStore } from '@reduxjs/toolkit';
 import { persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ConfigApi } from '../services';
-import allReducers from '../reducers';
+import reducers from '../reducers';
 
 
 /**
@@ -21,11 +20,6 @@ const persistConfig = {
     storage: AsyncStorage,
 };
 
-// combine reducers
-const reducers = combineReducers({
-    ...allReducers,
-    [ConfigApi.reducerPath]: ConfigApi.reducer,
-});
 
 // set the persisting reducers
 const persistedReducers = persistReducer(persistConfig, reducers);
@@ -34,11 +28,7 @@ const persistedReducers = persistReducer(persistConfig, reducers);
 export const store = configureStore({
     reducer: persistedReducers,
     middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware({
-            serializableCheck: {
-                ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-            },
-        }).concat(ConfigApi.middleware),
+        getDefaultMiddleware({immutableCheck: false, serializableCheck: false}),
 });
 
 // export the redux dispatch and root states
