@@ -1,20 +1,24 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { Center, NativeBaseProvider } from 'native-base'
+import { Provider } from 'react-redux'
+import { NavigationContainer } from '@react-navigation/native'
+import { PersistGate } from 'redux-persist/integration/react'
+import { persistStore } from 'redux-persist'
+import { store } from './stores/configureStores'
+import { Example } from './components/Example'
+import { InnerApp } from './routes/InnerApp'
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+const persistor = persistStore(store)
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+const App = () => (
+  <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}>
+      <NavigationContainer>
+        <NativeBaseProvider>
+          <InnerApp />
+        </NativeBaseProvider>
+      </NavigationContainer>
+    </PersistGate>
+  </Provider>
+)
+
+export default App
