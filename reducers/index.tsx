@@ -1,9 +1,9 @@
 import { combineReducers } from '@reduxjs/toolkit';
-import todos from "./tasks";
+import tasks from "./tasks";
 import settings from "./settings";
 
 
 export default combineReducers({
-    todos,
+    tasks,
     settings,
 })

@@ -1,4 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { translateApi } from '../services/translate';
 
 export type Task = {
     id: string;
@@ -7,12 +8,13 @@ export type Task = {
 };
 
 export type InitialState = {
-    status: 'idle' | 'loading' | 'complete';
+    status: 'loading' | 'complete';
+    error: string;
     entities: Task[];
 };
 
 const initialState: InitialState = {
-    status: 'idle',
+    status: 'complete',
     entities: [
         {
             id: '1',
@@ -24,8 +26,9 @@ const initialState: InitialState = {
     ],
 };
 
+
 const tasksSlice = createSlice({
-    name: 'todos',
+    name: 'tasks',
     initialState,
     reducers: {
         taskAdded(state, action) {
@@ -45,6 +48,37 @@ const tasksSlice = createSlice({
         },
     },
 });
+
+export const fetchTranslation = createAsyncThunk(
+    'fetchTranslation',
+    async (q, { dispatch, getState }) => {
+        const { settings: { sourceLang, targetLang } } = getState();
+        const translation = await translateApi({ q, sourceLang, targetLang })
+        console.log('translation', translation)
+        if (translation) {
+            const { taskAdded } = tasksSlice.actions;
+            dispatch(taskAdded({ id: Date.now(), origin: q, translation, isCompleted: false }));
+        }
+    }
+);
+
+const tasksSlice2 = createSlice({
+    name: 'tasks',
+    initialState,
+    reducers: {},
+    extraReducers: {
+        [fetchTranslation.pending]: (state, action) => {
+            state.status = 'loading'
+        },
+        [fetchTranslation.fulfilled]: (state, { error, payload }) => {
+            state.status = 'complete'
+            if(error) {
+                state.error = error
+            }
+        },
+    }
+})
+
 
 export const { taskAdded, taskToggled, taskRemove } =
     tasksSlice.actions;

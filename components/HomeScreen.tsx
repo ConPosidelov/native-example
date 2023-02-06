@@ -19,31 +19,8 @@ import {
     Flex,
 } from 'native-base'
 import { Feather, Entypo, MaterialIcons } from '@expo/vector-icons'
-import { taskAdded, taskToggled, taskRemove } from '../reducers/tasks'
+import { taskAdded, taskToggled, taskRemove, fetchTranslation } from '../reducers/tasks'
 
-
-
-const translate = async ({ q, sourceLang = 'en', targetLang = 'ru' }) => {
-    const options = {
-        method: 'GET',
-        url: 'https://translated-mymemory---translation-memory.p.rapidapi.com/get',
-        params: { langpair: `${sourceLang}|${targetLang}`, q, mt: '1', onlyprivate: '0', de: 'a@b.c' },
-        headers: {
-            'X-RapidAPI-Key': '4d631c1aa7msh898ea8edaa21832p1f1a9ejsn7932d54855c3',
-            'X-RapidAPI-Host': 'translated-mymemory---translation-memory.p.rapidapi.com'
-        }
-    };
-    try {
-        const res = await axios.request(options)
-        if(res) {
-            return res.data.matches[0].translation
-        } else {
-            return null
-        }
-    } catch {
-        console.error(error)
-    }
-}
 
 
 const HomeScreen = ({ navigation: { navigate } }) => {
@@ -51,7 +28,7 @@ const HomeScreen = ({ navigation: { navigate } }) => {
     const [translation, setTranslation] = useState('')
     const toast = useToast()
     const dispatch = useDispatch();
-    const todoList = useSelector((state: RootState) => state.todos.entities);
+    const todoList = useSelector((state: RootState) => state.tasks.entities);
     const sourceLang = useSelector((state: RootState) => state.settings.sourceLang);
     const targetLang = useSelector((state: RootState) => state.settings.targetLang);
 
@@ -64,10 +41,7 @@ const HomeScreen = ({ navigation: { navigate } }) => {
             return
         } else {
             let temp = title.trim();
-               translate({ q: temp, sourceLang, targetLang }).then(r => {
-                setTranslation(r)
-                dispatch(taskAdded({ id: Date.now(), origin: temp, translation: r, isCompleted: false }));
-            })
+            await dispatch(fetchTranslation(temp))
         }
     }
 
