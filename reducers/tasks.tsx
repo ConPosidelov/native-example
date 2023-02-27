@@ -15,6 +15,7 @@ export type InitialState = {
 
 const initialState: InitialState = {
     status: 'complete',
+    error: '',
     entities: [
         {
             id: '1',
@@ -54,7 +55,7 @@ export const fetchTranslation = createAsyncThunk(
     async (q, { dispatch, getState }) => {
         const { settings: { sourceLang, targetLang } } = getState();
         const translation = await translateApi({ q, sourceLang, targetLang })
-        console.log('translation', translation)
+        //console.log('translation', translation)
         if (translation) {
             const { taskAdded } = tasksSlice.actions;
             dispatch(taskAdded({ id: Date.now(), origin: q, translation, isCompleted: false }));
@@ -80,7 +81,6 @@ const tasksSlice2 = createSlice({
 })
 
 
-export const { taskAdded, taskToggled, taskRemove } =
-    tasksSlice.actions;
+export const { taskAdded, taskToggled, taskRemove } = tasksSlice.actions;
 
 export default tasksSlice.reducer;
